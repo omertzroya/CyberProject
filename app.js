@@ -121,7 +121,7 @@ app.post('/forgotPassword', async (req, res) => {
         const result = await db.query("SELECT username FROM usersunsecure WHERE email = $1", [email]);
 
         if (result.rows.length === 0) {
-            return res.status(400).send('User with this email does not exist');
+            return res.status(400).send('An e-mail has been sent with further instructions in the case this email exists');
         }
 
         const username = result.rows[0].username;
@@ -151,7 +151,7 @@ app.post('/forgotPassword', async (req, res) => {
             } else {
                 console.log('Email sent: ' + info.response);
             }
-            res.status(200).send('An e-mail has been sent with further instructions');
+            res.status(200).send('An e-mail has been sent with further instructions in the case this email exists');
         });
     } catch (error) {
         console.error('Error processing forgot password:', error);
@@ -236,6 +236,10 @@ app.post('/register', async (req, res) => {
 
         if (!isPasswordComplex(password)) {
             return res.status(400).send('Password does not meet complexity requirements');
+        }
+
+        if (await isUsernameTaken(username)) {
+            return res.status(400).send('Incorret input in one or more of the fields, try again');
         }
 
         const query = `INSERT INTO usersunsecure (username, firstname, lastname, email, password) 
@@ -535,6 +539,11 @@ async function isPasswordInHistory(username, newHash) {
     const historyLimit = config.password.passwordHistoryLimit;
     const result = await db.query("SELECT password FROM password_history_unsecure WHERE username = $1 ORDER BY changed_at DESC LIMIT $2", [username, historyLimit]);
     return result.rows.some(row => row.password === newHash);
+}
+
+async function isUsernameTaken(username){
+    const result = await db.query("SELECT username FROM users WHERE username = $1", [username]);
+    return result.rows.some(row => row.username === username);
 }
 
 app.post('/changePassword', async (req, res) => {

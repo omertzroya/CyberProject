@@ -52,13 +52,13 @@
    
       
     document.addEventListener('DOMContentLoaded', () => {
-            const registerForm = document.getElementById('loginForm');
+            const loginForm = document.getElementById('loginForm');
             
             
-            registerForm.addEventListener('submit', async (event) => {
+            loginForm.addEventListener('submit', async (event) => {
                 event.preventDefault(); 
 
-                const formData = new URLSearchParams(new FormData(registerForm));
+                const formData = new URLSearchParams(new FormData(loginForm));
                 
 
                 try {
@@ -71,9 +71,9 @@
                     });
             
                     if (response.ok) {
-                        alert('User registered successfully');
-                        statusMessage.classList.remove('text-red-500');
-                        statusMessage.classList.add('text-green-500');
+                        alert('User logged in succesfully successfully');
+                        window.location.href = '/main';
+                        
                     } else {
                         const errorMessage = await response.text();
                         alert(errorMessage);
