@@ -178,6 +178,7 @@ app.post('/resetPassword', async (req, res) => {
             return res.status(400).send('New password does not meet complexity requirements');
         }
 
+        
         const hash = crypto.createHash('sha1').update(token).digest('hex');
         const result = await db.query("SELECT username, reset_token_expiry FROM usersunsecure WHERE reset_token = $1", [hash]);
 
@@ -187,7 +188,10 @@ app.post('/resetPassword', async (req, res) => {
 
         const { username, reset_token_expiry } = result.rows[0];
 
-        
+        if (await isPasswordInHistory(username, newPassword)) {
+            return res.status(400).send('New password does not meet complexity requirements');
+        }
+
         if (reset_token_expiry < new Date()) {
             return res.sendFile(path.join(__dirname, 'public', 'error.html'));
         }
@@ -279,9 +283,6 @@ app.post('/login', async (req, res) => {
         return res.status(500).send('Error logging in');
     }
 });
-
-
-
 
 
 // Add new client (that is XSS vulnerable)
@@ -548,7 +549,7 @@ app.post('/changePassword', async (req, res) => {
         }
 
         if (await isPasswordInHistory(username, newPassword)) {
-            return res.status(400).send('New password must not be one of the last used passwords');
+            return res.status(400).send('New password does not meet complexity requirements');
         }
 
         await db.query("UPDATE usersunsecure SET password = $1 WHERE username = $2", [newPassword, username]);

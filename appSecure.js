@@ -194,11 +194,15 @@ app.post('/resetPassword', async (req, res) => {
         }
 
         const { username, reset_token_expiry } = result.rows[0];
+        
+        if (await isPasswordInHistory(username, newPassword)) {
+            return res.status(400).send('New password does not meet complexity requirements');
+        }
 
         if (reset_token_expiry < new Date()) {
             return res.sendFile(path.join(__dirname, 'public', 'error.html'));
         }
-
+        
         await db.query("UPDATE users SET password = $1, reset_token = NULL, reset_token_expiry = NULL WHERE username = $2", [newPassword, username]);
 
         res.status(200).send('Password has been reset successfully');
@@ -206,6 +210,7 @@ app.post('/resetPassword', async (req, res) => {
         console.error('Error resetting password:', error);
         res.status(500).send('Error resetting password');
     }
+
 });
 
 app.get('/changepassword', async (req, res) => {
@@ -623,10 +628,9 @@ app.post('/changePassword', async (req, res) => {
             return res.status(400).send('New password must be different from the current password');
         }
 
-        if (await isPasswordInHistory(username, newHash)) {
-            return res.status(400).send('New password must not be one of the last used passwords');
+        if (await isPasswordInHistory(username, newPassword)) {
+            return res.status(400).send('New password does not meet complexity requirements');
         }
-
         
         await db.query("UPDATE users SET password = $1 WHERE username = $2", [newHash, username]);
         await db.query("INSERT INTO password_history (username, password, salt) VALUES ($1, $2, $3)", [username, newHash, salt]);
