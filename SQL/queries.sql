@@ -9,9 +9,11 @@ CREATE TABLE users (
     reset_token VARCHAR(255),
     reset_token_expiry TIMESTAMP,
     salt VARCHAR(255),
-    login_attempt INTEGER,
-    user_blocked TIMESTAMP DEFAULT NOW()
+    login_attempts INTEGER NOT NULL DEFAULT 0,
+	blocked BOOLEAN NOT NULL DEFAULT FALSE,
+    blocked_time TIMESTAMP 
 );
+
 
 --Usersunsecure table creation--
 CREATE TABLE usersunsecure (
@@ -23,10 +25,10 @@ CREATE TABLE usersunsecure (
     password VARCHAR(255) NOT NULL,
     reset_token VARCHAR(255),
     reset_token_expiry TIMESTAMP,
-    login_attempt INTEGER,
-    user_blocked TIMESTAMP DEFAULT NOW()
+    login_attempts INTEGER NOT NULL DEFAULT 0,
+	blocked BOOLEAN NOT NULL DEFAULT FALSE,
+    blocked_time TIMESTAMP 
 );
-
 
 --Clients table creation--
 CREATE TABLE clients (

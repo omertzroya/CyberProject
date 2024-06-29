@@ -274,8 +274,12 @@ app.post('/register', async (req, res) => {
 
 //SQL injection
 //' OR '1'='1
+
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
+
+    const MAX_LOGIN_ATTEMPTS = config.password.maxLoginAttempts;
+    const BLOCK_DURATION = 86400 * 1000; // FULL DAY
 
     try {
         const result = await db.query("SELECT * FROM users WHERE username = $1", [username]);
@@ -283,68 +287,59 @@ app.post('/login', async (req, res) => {
             return res.status(401).send('Invalid username or password');
         }
 
+        const user = result.rows[0];
+
         const dbPassword = result.rows[0].password;
         const salt = result.rows[0].salt;
         sanitized_password = escapeHTML(password);
         const hash = crypto.createHmac('sha256', salt).update(sanitized_password).digest('hex');
 
+        
+       
+        if (user.blocked) {
+            const blockedTime = new Date(user.blocked_time).getTime();
+            const currentTime = Date.now();
+
+            if (currentTime - blockedTime > BLOCK_DURATION) {
+                // Unblock the user and reset login attempts
+                await db.query(`UPDATE users SET login_attempts = 0, blocked = false, blocked_time = NULL WHERE id = $1`, [user.id]);
+            } else {
+                return res.status(403).send('Account is blocked due to too many failed login attempts. Try again later.');
+            }
+        }
+
+        
         if (hash !== dbPassword) {
-            return res.status(401).send('Invalid username or password');
-        }
-
-        req.session.username = username;
-        res.redirect('/main');
-    } catch (error) {
-        console.error('Error logging in:', error);
-        res.status(500).send('Error logging in');
-    }
-});
-app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-    
-    try {
-        // Unparameterized query (vulnerable to SQL injection)
-        const query = `SELECT * FROM usersunsecure WHERE username = '${username}' AND password = '${password}' LIMIT 1`;
-        const result = await db.query(query);
-
-        // Check if user is blocked
-        const timerQuery = `SELECT user_blocked FROM usersunsecure WHERE username = '${username}' LIMIT 1`;
-        const timerResult = await db.query(timerQuery);
-
-        if (timerResult.rows.length > 0) {
-            const userBlocked = timerResult.rows[0].user_blocked;
-            const now = new Date();
             
-            if (now < userBlocked) {
-                return res.status(401).send('User Blocked');
-            }
-        }
+            const newAttempts = user.login_attempts + 1;
 
-        if (result.rows.length === 0) {
-            // Fetch current login attempts
-            const attemptQuery = `SELECT login_attempt FROM usersunsecure WHERE username = '${username}'`;
-            const attemptResult = await db.query(attemptQuery);
-
-            if (attemptResult.rows.length > 0) {
-                let attempts = attemptResult.rows[0].login_attempt || 0;
-                
-                if (attempts >= config.password.maxLoginAttempts) {
-                    const blockUntil = new Date(Date.now() + 10000);
-                    await db.query(`UPDATE usersunsecure SET user_blocked = '${blockUntil.toISOString()}', login_attempt = 0 WHERE username = '${username}'`);
-                } else {
-                    attempts += 1;
-                    await db.query(`UPDATE usersunsecure SET login_attempt = ${attempts} WHERE username = '${username}'`);
-                }
+            
+            if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
+                const newDate = new Date().toISOString();
+                await db.query(
+                    `UPDATE users SET login_attempts = $1, blocked = true, blocked_time = $2 WHERE id = $3`,[newAttempts,newDate,user.id]
+                );
+                return res.status(403).send('Account is blocked due to too many failed login attempts. Try again later.');
+            } else {
+                await db.query(
+                    `UPDATE users SET login_attempts = $1 WHERE id = $2`,[newAttempts,user.id]
+                );
             }
 
             return res.status(401).send('Invalid username or password');
         }
 
+        // Reset login attempts on successful login
+        await db.query(
+            `UPDATE users SET login_attempts = 0, blocked = false, blocked_time = NULL WHERE id = $1`,[user.id]
+        );
+
         req.session.username = username;
-        res.redirect('/main');
+        return res.redirect('/main');
+
     } catch (error) {
         console.error('Error logging in:', error);
-        res.status(500).send('Error logging in');
+        return res.status(500).send('Error logging in');
     }
 });
 
