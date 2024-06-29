@@ -234,6 +234,10 @@ app.post('/register', async (req, res) => {
             return res.status(400).send('All fields are required');
         }
 
+        if (await isUsernameTaken(username)) {
+            return res.status(400).send('Incorret input in one or more of the fields, try again');
+        }
+
         if (password !== repeatPassword) {
             return res.status(400).send('Passwords mismatch');
         }
@@ -241,10 +245,7 @@ app.post('/register', async (req, res) => {
         if (!isPasswordComplex(password)) {
             return res.status(400).send('Password does not meet complexity requirements');
         }
-
-        if (await isUsernameTaken(username)) {
-            return res.status(400).send('Incorret input in one or more of the fields, try again');
-        }
+        
 
         const query = `INSERT INTO usersunsecure (username, firstname, lastname, email, password) 
                        VALUES ('${username}', '${firstname}', '${lastname}', '${email}', '${password}')`;
@@ -517,9 +518,10 @@ async function isPasswordInHistory(username, newHash) {
 }
 
 async function isUsernameTaken(username){
-    const result = await db.query("SELECT username FROM users WHERE username = $1", [username]);
+    const result = await db.query("SELECT username FROM usersunsecure WHERE username = $1", [username]);
     return result.rows.some(row => row.username === username);
 }
+
 
 app.post('/changePassword', async (req, res) => {
     if (!req.session.username) {
