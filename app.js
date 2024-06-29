@@ -296,7 +296,6 @@ app.post('/addClient', async (req, res) => {
             return res.status(401).send('Unauthorized');
         }
 
-        /
         const query = `INSERT INTO clients (first_name, last_name, client_id, email, phone) 
         VALUES ('${clientFirstName}', '${clientLastName}', '${clientId}', '${clientEmail}', '${clientPhone}') RETURNING *`;
 
