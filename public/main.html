@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="flex flex-col min-h-screen bg-gray-100 font-sans antialiased">
+    <!-- Nav bar -->
+    <nav class="bg-gray-600 p-4 text-white flex justify-between">
+        <div>
+            <h1 class="text-3xl font-bold">Communication_LTD</h1>
+        </div>
+        <div>
+            <a href="changepassword" class="text-white hover:underline mx-4">Change Password</a>
+            <a href="/logout" class="text-white hover:underline mx-4">Log Out</a>
+        </div>
+    </nav>
+    <br>
+    <br>
+    <!-- Main -->
+    <div class="flex items-center justify-center h-screen">
+        <div class="bg-white p-8 shadow-md rounded-lg max-w-md w-full">
+            <!-- Form -->
+            <div class="text-center">
+                <h2 class="text-2xl font-semibold mb-5">Welcome!</h2>
+                <p class="text-gray-700 mb-5">
+                    Add new client
+                </p>
+                <form id="addClientForm" class="space-y-4 text-left" action="/addClient" method="POST">
+                    <div>
+                        <label for="clientFirstName" class="block mb-1 font-medium">First Name</label>
+                        <input type="text" id="clientFirstName" name="clientFirstName" placeholder="Enter new client first name..." class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="clientLastName" class="block mb-1 font-medium">Last Name</label>
+                        <input type="text" id="clientLastName" name="clientLastName" placeholder="Enter new client last name..." class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="clientId" class="block mb-1 font-medium">ID</label>
+                        <input type="text" id="clientId" name="clientId" placeholder="Enter new client ID..." class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="clientEmail" class="block mb-1 font-medium">Email</label>
+                        <input type="text" id="clientEmail" name="clientEmail" placeholder="Enter new client email..." class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="clientPhone" class="block mb-1 font-medium">Phone</label>
+                        <input type="text" id="clientPhone" name="clientPhone" placeholder="Enter new client phone..." class="w-full p-2 border rounded">
+                    </div>
+
+                    <button type="submit" class="w-full bg-gray-500 text-white p-2 rounded hover:bg-gray-600">Add to Database</button>
+                </form>
+                <div id="statusMessage" class="mt-4"></div>
+            </div>
+            <br>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const addClientForm = document.getElementById('addClientForm');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            addClientForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+    
+                const formData = new FormData(addClientForm);
+    
+                try {
+                    const response = await fetch('/addClient', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams(formData)
+                    });
+    
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    
+                    if (response.ok) {
+                        const resultHTML = await response.text();
+                        document.open();
+                        document.write(resultHTML);
+                        document.close();
+                    } else {
+                        const errorMessage = await response.text();
+                        statusMessage.innerHTML = errorMessage;
+                    }
+                } catch (error) {
+                    console.error('Error adding client:', error);
+                    statusMessage.innerHTML = 'Error adding client';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+</head>
+<body class="flex flex-col min-h-scrren bg-gray-100 font-sans antialised">
+    <!-- Nav bar -->
+    <nav class="bg-gray-600 p-4 text-white flex justify-between">
+        <div>
+            <h1 class="text-3xl font-bold">Comunication_LTD</h1>
+        </div>
+        <div>
+            <a href="login" class="text-white hover:underline mx-4">Login</a>
+            <a href="register" class="text-white hover:underline mx-4">Register</a>
+        </div>
+    </nav>
+    <br>
+    <br>
+    <!-- Main -->
+    <div class="flex items-center justify-center h-screen">
+        <div class="bg-white p-8 shadow-md rounded-lg max-w-md w-full">
+
+            <!-- form -->
+            <form class="space-y-4" id="loginForm" action="/login" method="POST">
+                <h2 class="text-xl font-semibold">Login</h2>
+                <div>
+                    <label for="username" class="block mb-1 font-medium">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username..." class="w-full p-2 border rounded">
+                </div>
+
+                <div>
+                    <label for="password" class="block mb-1 font-medium">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password..." class="w-full p-2 border rounded">
+                </div>
+                <button onclick="" type="submit" class="w-full bg-gray-500 text-white p-2 rounded hover:bg-gray-600">Login</button>
+            </form>
+            <br>
+            <button onclick="gotoForgetPassword()" type="submit" class="w-full bg-gray-500 text-white p-2 rounded hover:bg-gray-600">Forgot password?</button>
+            
+            <div id="statusMessage" class="text-red-500 mt-2"></div>
+
+        </div>  
+    </div>
+<script>
+    function gotoForgetPassword() {
+        window.location.href = "forgotpassword";
+    }
+   
+</script>
+
+</body>
+
+</html>

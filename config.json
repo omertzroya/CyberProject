@@ -1,0 +1,13 @@
+{
+    "password": {
+        "minLength": 10,
+        "requireUppercase": true,
+        "requireLowercase": true,
+        "requireNumbers": true,
+        "requireSpecialCharacters": true,
+        "passwordHistoryLimit": 3,
+        "maxLoginAttempts": 3,
+        "requireDictionaryProtection": true,
+        "dictionaryPath": "./dictionary2.txt"
+    }
+}

