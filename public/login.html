@@ -50,6 +50,42 @@
         window.location.href = "forgotpassword";
     }
    
+      
+    document.addEventListener('DOMContentLoaded', () => {
+            const registerForm = document.getElementById('loginForm');
+            
+            
+            registerForm.addEventListener('submit', async (event) => {
+                event.preventDefault(); 
+
+                const formData = new URLSearchParams(new FormData(registerForm));
+                
+
+                try {
+                    const response = await fetch('/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: formData
+                    });
+            
+                    if (response.ok) {
+                        alert('User registered successfully');
+                        statusMessage.classList.remove('text-red-500');
+                        statusMessage.classList.add('text-green-500');
+                    } else {
+                        const errorMessage = await response.text();
+                        alert(errorMessage);
+                    }
+                } catch (error) {
+                    console.error('Error registering user:', error);
+                     alert('Error login in');
+                    
+                }
+            });
+        });
+    
 </script>
 
 </body>
