@@ -18,7 +18,7 @@ const config = JSON.parse(fs.readFileSync('config.json'));
 
 // Setup email transporter
 const transporter = nodemailer.createTransport({
-    service: 'Gmail', // or any other email service
+    service: 'Gmail',
     auth: {
         user: 'best4mecomp@gmail.com',
         pass: 'pdhmsyzlivvdzplw'
@@ -42,7 +42,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Start the server
-const port = 3002; // or any port of your choice
+const port = 3002; 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
@@ -103,7 +103,7 @@ function hashPasswordWithSalt(password,salt) {
     return hash;
 }
 
-// Defined routes
+
 app.get('/login', async (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
@@ -166,6 +166,7 @@ app.post('/forgotPassword', async (req, res) => {
             }
             res.status(200).send('An e-mail has been sent with further instructions in the case this email exists');
         });
+
     } catch (error) {
         console.error('Error processing forgot password:', error);
         res.status(500).send('Error processing forgot password');
@@ -202,7 +203,7 @@ app.post('/resetPassword', async (req, res) => {
         if (reset_token_expiry < new Date()) {
             return res.sendFile(path.join(__dirname, 'public', 'error.html'));
         }
-        
+
         await db.query("UPDATE users SET password = $1, reset_token = NULL, reset_token_expiry = NULL WHERE username = $2", [newPassword, username]);
 
         res.status(200).send('Password has been reset successfully');
@@ -306,7 +307,8 @@ app.post('/login', async (req, res) => {
             const currentTime = Date.now();
 
             if (currentTime - blockedTime > BLOCK_DURATION) {
-                // Unblock the user and reset login attempts
+                
+
                 await db.query(`UPDATE users SET login_attempts = 0, blocked = false, blocked_time = NULL WHERE id = $1`, [user.id]);
             } else {
                 return res.status(403).send('Account is blocked due to too many failed login attempts. Try again later.');
@@ -334,7 +336,7 @@ app.post('/login', async (req, res) => {
             return res.status(401).send('Invalid username or password');
         }
 
-        // Reset login attempts on successful login
+        
         await db.query(
             `UPDATE users SET login_attempts = 0, blocked = false, blocked_time = NULL WHERE id = $1`,[user.id]
         );
@@ -353,7 +355,7 @@ app.post('/addClient', async (req, res) => {
     const { clientFirstName, clientLastName, clientId, clientEmail, clientPhone } = req.body;
 
     try {
-        // Check if user is authenticated
+        
         if (!req.session.username) {
             return res.status(401).send('Unauthorized');
         }
@@ -642,9 +644,6 @@ app.post('/changePassword', async (req, res) => {
         res.status(500).send('Error changing password');
     }
 });
-
-
-
 
 
 // Function to do HTML escaping using 'he' library

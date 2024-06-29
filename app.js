@@ -13,7 +13,7 @@ const config = JSON.parse(fs.readFileSync('config.json'));
 
 // Setup email transporter
 const transporter = nodemailer.createTransport({
-    service: 'Gmail', // or any other email service
+    service: 'Gmail', 
     auth: {
         user: 'best4mecomp@gmail.com',
         pass: 'pdhmsyzlivvdzplw'
@@ -37,7 +37,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Start the server
-const port = process.env.PORT || 3002; // or any port of your choice
+const port = process.env.PORT || 3002; 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
@@ -90,7 +90,7 @@ function hashPassword(password) {
     return { salt, hash };
 }
 
-// Defined routes
+
 app.get('/login', async (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
@@ -223,9 +223,9 @@ app.get('/main', async (req, res) => {
 });
 
 
-//SQL injection , write it inside password and repeat passwordF
+//SQL injection , write it inside password and repeat password
 //'); DROP TABLE users; --
-// 123'); DROP TABLE usersunsecure; --F
+// 123'); DROP TABLE usersunsecure; --
 app.post('/register', async (req, res) => {
     const { username, firstname, lastname, email, password, repeatPassword } = req.body;
     
@@ -291,19 +291,19 @@ app.post('/addClient', async (req, res) => {
     const { clientFirstName, clientLastName, clientId, clientEmail, clientPhone } = req.body;
 
     try {
-        // Check if user is authenticated
+        
         if (!req.session.username) {
             return res.status(401).send('Unauthorized');
         }
 
-        // Insecure query construction
+        /
         const query = `INSERT INTO clients (first_name, last_name, client_id, email, phone) 
         VALUES ('${clientFirstName}', '${clientLastName}', '${clientId}', '${clientEmail}', '${clientPhone}') RETURNING *`;
 
-        // Execute the query
+       
         const result = await db.query(query);
 
-        // Check if any field is empty
+        
         if (!clientFirstName || !clientLastName || !clientId || !clientEmail || !clientPhone) {
             return res.status(200).send(`
                 <!DOCTYPE html>
@@ -483,7 +483,7 @@ app.post('/addClient', async (req, res) => {
                             if (response.ok) {
                                 const resultHTML = await response.text();
                                 
-                                // Clear the existing content and write the new HTML document
+                                
 
                                 document.open();
                                 document.write(resultHTML);
